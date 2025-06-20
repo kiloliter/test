@@ -30,7 +30,7 @@ async def handle_client(websocket):
         clients.remove(websocket)
 
 async def main():
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     print(f"Starting WebSocket server on port {port}")
     async with websockets.serve(
         handle_client,
