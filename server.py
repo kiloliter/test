@@ -1,12 +1,24 @@
-from flask import Flask
+import asyncio
 import os
+import websockets
 
-app = Flask(__name__)
+connected = set()
 
-@app.route("/")
-def hello():
-    return "Hello, Render!"
+async def handler(websocket, path):
+    connected.add(websocket)
+    try:
+        async for message in websocket:
+            print(f"Received: {message}")
+            for conn in connected:
+                await conn.send(f"Echo: {message}")
+    finally:
+        connected.remove(websocket)
+
+async def main():
+    port = int(os.environ.get("PORT", 5000))
+    async with websockets.serve(handler, "0.0.0.0", port):
+        print(f"Listening on port {port}...")
+        await asyncio.Future()  # run forever
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    asyncio.run(main())
